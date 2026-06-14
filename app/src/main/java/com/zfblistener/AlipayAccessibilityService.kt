@@ -17,13 +17,9 @@ class AlipayAccessibilityService : AccessibilityService() {
         .readTimeout(10, TimeUnit.SECONDS)
         .build()
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event == null) return
-        if (event.packageName != PACKAGE_ALIPAY) {
-            LogHelper.add(this, "忽略: 非支付宝通知 ${event.packageName}")
-            return
-        }
-        if (event.getType() != AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) return
+    override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        val pkg = event.packageName ?: return
+        if (pkg != PACKAGE_ALIPAY) return
 
         val notification = event.parcelableData as? Notification ?: return
         val extras = notification.extras ?: return
@@ -32,39 +28,32 @@ class AlipayAccessibilityService : AccessibilityService() {
         val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
         val bigText = extras.getCharSequence(Notification.EXTRA_BIG_TEXT)?.toString() ?: ""
 
-        LogHelper.add(this, "通知内容: title=$title text=$text")
-
         val content = "$title $text $bigText".trim()
         if (content.isBlank()) return
 
         val snippet = if (content.length > 30) content.take(30) + "…" else content
-        LogHelper.add(this, "收到通知: $snippet")
+        LogHelper.add(this, "收到: $snippet")
 
         if (!containsKeyword(content)) {
-            LogHelper.add(this, "忽略: 无关通知 $snippet")
+            LogHelper.add(this, "忽略: 无关 $snippet")
             return
         }
 
-        val encoded = Base64.encodeToString(content.toByteArray(), Base64.NO_WRAP)
-        val baseUrl = PreferenceManager.getDefaultSharedPreferences(this)
+        val url = PreferenceManager.getDefaultSharedPreferences(this)
             .getString("target_url", DEFAULT_URL) ?: DEFAULT_URL
-        val targetUrl = baseUrl + URLEncoder.encode(encoded, "UTF-8")
+        val targetUrl = url + URLEncoder.encode(
+            Base64.encodeToString(content.toByteArray(), Base64.NO_WRAP), "UTF-8")
 
-        LogHelper.add(this, "发送中… $snippet")
+        LogHelper.add(this, "发送… $snippet")
 
         try {
-            val request = Request.Builder()
-                .url(targetUrl)
-                .get()
-                .build()
-            val response = client.newCall(request).execute()
-            val body = response.body?.string() ?: ""
-            response.close()
-            if (response.isSuccessful && body == "ok") {
+            val resp = client.newCall(Request.Builder().url(targetUrl).get().build()).execute()
+            if (resp.isSuccessful && resp.body?.string() == "ok") {
                 LogHelper.add(this, "成功: $snippet")
             } else {
-                LogHelper.add(this, "服务器异常: $body")
+                LogHelper.add(this, "服务器异常: ${resp.code()}")
             }
+            resp.close()
         } catch (e: Exception) {
             LogHelper.add(this, "失败: ${e.message}")
         }
