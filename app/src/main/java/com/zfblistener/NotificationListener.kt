@@ -1,8 +1,8 @@
 package com.zfblistener
 
+import android.app.NotificationManager
+import android.content.ComponentName
 import android.content.Context
-import android.os.Build
-import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Base64
@@ -97,13 +97,9 @@ class NotificationListener : NotificationListenerService() {
         private const val DEFAULT_URL = "http://hot583.com/shop/zfbdz"
 
         fun isNotificationListenerEnabled(context: Context): Boolean {
-            val packageNames = Settings.Secure.getString(
-                context.contentResolver,
-                Settings.Secure.ENABLED_NOTIFICATION_LISTENERS
-            )
-            return packageNames?.contains(
-                "${context.packageName}/${NotificationListener::class.java.name}"
-            ) == true
+            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val cn = ComponentName(context, NotificationListener::class.java)
+            return nm.getEnabledNotificationListeners().contains(cn)
         }
     }
 }
