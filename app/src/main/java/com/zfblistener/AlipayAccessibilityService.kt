@@ -87,7 +87,6 @@ class AlipayAccessibilityService : AccessibilityService() {
     }
 
     companion object {
-        @Volatile
         var isRunning = false
 
         private const val PACKAGE_ALIPAY = "com.eg.android.AlipayGphone"
