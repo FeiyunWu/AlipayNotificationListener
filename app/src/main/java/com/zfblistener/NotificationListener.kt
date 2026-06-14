@@ -99,7 +99,7 @@ class NotificationListener : NotificationListenerService() {
         fun isNotificationListenerEnabled(context: Context): Boolean {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val cn = ComponentName(context, NotificationListener::class.java)
-            return nm.getEnabledNotificationListeners().contains(cn)
+            return nm.isNotificationListenerAccessGranted(cn)
         }
     }
 }
