@@ -45,7 +45,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         permissionButton.setOnClickListener {
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+            }
         }
 
         clearLogButton.setOnClickListener {
@@ -69,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateStatus() {
-        val enabled = AlipayAccessibilityService.isRunning
+        val enabled = NotificationListener.isNotificationListenerEnabled(this)
         statusText.text = if (enabled) "监听状态: 已开启" else "监听状态: 未开启"
         statusText.setTextColor(
             if (enabled) 0xFF4CAF50.toInt() else 0xFFFF5252.toInt()
