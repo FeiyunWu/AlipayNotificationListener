@@ -51,7 +51,7 @@ class AlipayAccessibilityService : AccessibilityService() {
             if (resp.isSuccessful && resp.body?.string() == "ok") {
                 LogHelper.add(this, "成功: $snippet")
             } else {
-                LogHelper.add(this, "服务器异常: ${resp.code()}")
+                LogHelper.add(this, "服务器异常: ${resp.code}")
             }
             resp.close()
         } catch (e: Exception) {
