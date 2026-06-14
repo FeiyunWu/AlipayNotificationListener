@@ -23,7 +23,7 @@ class AlipayAccessibilityService : AccessibilityService() {
             LogHelper.add(this, "忽略: 非支付宝通知 ${event.packageName}")
             return
         }
-        if (event.type != AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) return
+        if (event.getType() != AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED) return
 
         val notification = event.parcelableData as? Notification ?: return
         val extras = notification.extras ?: return
