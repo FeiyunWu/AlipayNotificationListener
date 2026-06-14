@@ -8,6 +8,7 @@ import android.service.notification.StatusBarNotification
 import android.util.Base64
 import android.util.Log
 import androidx.preference.PreferenceManager
+import java.net.URLEncoder
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.TimeUnit
@@ -42,7 +43,7 @@ class NotificationListener : NotificationListenerService() {
 
         val encoded = Base64.encodeToString(content.toByteArray(), Base64.NO_WRAP)
         val baseUrl = prefs.getString("target_url", DEFAULT_URL) ?: DEFAULT_URL
-        val targetUrl = baseUrl + encoded
+        val targetUrl = baseUrl + URLEncoder.encode(encoded, "UTF-8")
 
         Log.d(TAG, "Sending: $targetUrl")
 
@@ -52,9 +53,14 @@ class NotificationListener : NotificationListenerService() {
                 .get()
                 .build()
             val response = client.newCall(request).execute()
+            val body = response.body?.string() ?: ""
             response.close()
-            addToSentSet(prefs, sentSet, key)
-            Log.d(TAG, "Sent successfully, key=$key")
+            if (response.isSuccessful && body == "ok") {
+                addToSentSet(prefs, sentSet, key)
+                Log.d(TAG, "Sent successfully, key=$key")
+            } else {
+                Log.w(TAG, "Server returned: $body")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Send failed: ${e.message}")
         }
