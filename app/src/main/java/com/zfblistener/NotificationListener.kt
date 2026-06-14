@@ -21,7 +21,10 @@ class NotificationListener : NotificationListenerService() {
         .build()
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        if (sbn.packageName != PACKAGE_ALIPAY) return
+        if (sbn.packageName != PACKAGE_ALIPAY) {
+            LogHelper.add(this, "忽略: 非支付宝通知 ${sbn.packageName}")
+            return
+        }
 
         val tag = sbn.tag ?: ""
         val id = sbn.id
@@ -29,7 +32,10 @@ class NotificationListener : NotificationListenerService() {
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         val sentSet = getSentSet(prefs)
-        if (sentSet.contains(key)) return
+        if (sentSet.contains(key)) {
+            LogHelper.add(this, "跳过: 已发送过 key=$key")
+            return
+        }
 
         val notification = sbn.notification
         val extras = notification.extras ?: return
@@ -39,13 +45,19 @@ class NotificationListener : NotificationListenerService() {
 
         val content = "$title $text $bigText".trim()
         if (content.isBlank()) return
-        if (!containsKeyword(content)) return
+
+        val snippet = if (content.length > 30) content.take(30) + "…" else content
+
+        if (!containsKeyword(content)) {
+            LogHelper.add(this, "忽略: 无关通知 $snippet")
+            return
+        }
 
         val encoded = Base64.encodeToString(content.toByteArray(), Base64.NO_WRAP)
         val baseUrl = prefs.getString("target_url", DEFAULT_URL) ?: DEFAULT_URL
         val targetUrl = baseUrl + URLEncoder.encode(encoded, "UTF-8")
 
-        Log.d(TAG, "Sending: $targetUrl")
+        LogHelper.add(this, "发送中… $snippet")
 
         try {
             val request = Request.Builder()
@@ -57,12 +69,12 @@ class NotificationListener : NotificationListenerService() {
             response.close()
             if (response.isSuccessful && body == "ok") {
                 addToSentSet(prefs, sentSet, key)
-                Log.d(TAG, "Sent successfully, key=$key")
+                LogHelper.add(this, "成功: $snippet")
             } else {
-                Log.w(TAG, "Server returned: $body")
+                LogHelper.add(this, "服务器异常: $body")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Send failed: ${e.message}")
+            LogHelper.add(this, "失败: ${e.message}")
         }
     }
 

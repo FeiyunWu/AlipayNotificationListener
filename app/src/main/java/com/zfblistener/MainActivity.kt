@@ -17,6 +17,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var saveButton: Button
     private lateinit var statusText: TextView
     private lateinit var permissionButton: Button
+    private lateinit var logText: TextView
+    private lateinit var clearLogButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +28,8 @@ class MainActivity : AppCompatActivity() {
         saveButton = findViewById(R.id.saveButton)
         statusText = findViewById(R.id.statusText)
         permissionButton = findViewById(R.id.permissionButton)
+        logText = findViewById(R.id.logText)
+        clearLogButton = findViewById(R.id.clearLogButton)
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         urlEditText.setText(prefs.getString("target_url", "http://hot583.com/shop/zfbdz/index.php?data="))
@@ -46,12 +50,24 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        clearLogButton.setOnClickListener {
+            LogHelper.clear(this)
+            refreshLog()
+        }
+
+        refreshLog()
         updateStatus()
     }
 
     override fun onResume() {
         super.onResume()
+        refreshLog()
         updateStatus()
+    }
+
+    private fun refreshLog() {
+        val logs = LogHelper.get(this)
+        logText.text = if (logs.isEmpty()) "暂无日志" else logs.joinToString("\n") { "[${it.first}] ${it.second}" }
     }
 
     private fun updateStatus() {
