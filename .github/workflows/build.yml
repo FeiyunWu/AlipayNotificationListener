@@ -19,14 +19,20 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - name: Install Android SDK platform
-        run: yes | sdkmanager --install "platforms;android-34" "build-tools;34.0.0" && yes | sdkmanager --licenses
+      - name: Check SDK and install platform
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          ls -la $ANDROID_HOME/ || true
+          ls -la $ANDROID_HOME/cmdline-tools/ || true
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0" || yes | $ANDROID_HOME/tools/bin/sdkmanager --install "platforms;android-34" "build-tools;34.0.0"
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
 
       - name: Make gradlew executable
         run: chmod +x gradlew
 
       - name: Build APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
