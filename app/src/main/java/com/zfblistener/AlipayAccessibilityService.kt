@@ -18,7 +18,8 @@ class AlipayAccessibilityService : AccessibilityService() {
         .build()
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {
-        val pkg = event.packageName ?: return
+        val pkg = event.packageName?.toString() ?: "null"
+        LogHelper.add(this, "事件: pkg=$pkg")
         if (pkg != PACKAGE_ALIPAY) return
 
         val notification = event.parcelableData as? Notification ?: return
@@ -62,11 +63,13 @@ class AlipayAccessibilityService : AccessibilityService() {
     override fun onCreate() {
         super.onCreate()
         isRunning = true
+        LogHelper.add(this, "服务已启动")
     }
 
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
+        LogHelper.add(this, "服务已停止")
     }
 
     override fun onInterrupt() {}
