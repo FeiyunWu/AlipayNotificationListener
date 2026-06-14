@@ -19,12 +19,10 @@ jobs:
 
       - uses: android-actions/setup-android@v3
 
-      - name: Accept licenses & install SDK
+      - name: Accept licenses & install SDK platform
         run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          ls -la $ANDROID_HOME/
           yes | sdkmanager --licenses || true
-          yes | sdkmanager "platforms;android-34" "build-tools;34.0.0" || true
+          yes | sdkmanager "platforms;android-33" || true
           echo "sdk.dir=$ANDROID_HOME" > local.properties
 
       - name: Make gradlew executable
