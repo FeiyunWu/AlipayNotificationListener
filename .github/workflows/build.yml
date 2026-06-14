@@ -39,12 +39,14 @@ jobs:
       - name: Build APK
         run: |
           ./gradlew assembleDebug --stacktrace 2>&1 | tee gradle_output.txt
-          EXIT_CODE=${PIPESTATUS[0]}
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "=== BUILD FAILED ==="
-            tail -100 gradle_output.txt
-            exit $EXIT_CODE
-          fi
+          exit ${PIPESTATUS[0]}
+
+      - name: Upload build output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-output
+          path: gradle_output.txt
 
       - uses: actions/upload-artifact@v4
         with:
