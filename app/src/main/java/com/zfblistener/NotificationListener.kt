@@ -94,7 +94,7 @@ class NotificationListener : NotificationListenerService() {
         private const val TAG = "ZFBNotification"
         private const val PACKAGE_ALIPAY = "com.eg.android.AlipayGphone"
         private const val SENT_KEYS = "sent_notification_keys"
-        private const val DEFAULT_URL = "http://hot583.com/shop/zfbdz"
+        private const val DEFAULT_URL = "http://hot583.com/shop/zfbdz/index.php?data="
 
         fun isNotificationListenerEnabled(context: Context): Boolean {
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

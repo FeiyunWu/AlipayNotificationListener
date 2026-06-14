@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         permissionButton = findViewById(R.id.permissionButton)
 
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        urlEditText.setText(prefs.getString("target_url", "http://hot583.com/shop/zfbdz"))
+        urlEditText.setText(prefs.getString("target_url", "http://hot583.com/shop/zfbdz/index.php?data="))
 
         saveButton.setOnClickListener {
             val url = urlEditText.text.toString().trim()
