@@ -16,7 +16,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="目标 URL（base64 拼接在末尾）"
+        android:text="目标 URL（数据拼接在末尾）"
         android:textSize="14sp"
         android:layout_marginBottom="4dp" />
 
@@ -48,12 +48,12 @@
         android:id="@+id/permissionButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="开启通知监听权限" />
+        android:text="开启无障碍服务权限" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="点击后跳转到系统设置，找到本 APP 并开启通知监听权限"
+        android:text="点击后跳转到无障碍设置，找到本 APP 并开启服务"
         android:textSize="12sp"
         android:textColor="#888888"
         android:layout_marginTop="8dp" />
